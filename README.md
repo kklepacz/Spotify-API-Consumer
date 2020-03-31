@@ -13,7 +13,6 @@ You can find further API documentation on which this app is based on [here.](htt
 
 #### Application setup
 
-You can fork and pull repository for yourself or download [ready .jar package](/Spotify_API_CLI-0.1.0-ALPHA.jar) to try it out.
 Configure your own application.properties in project or jar directory.
 Generate your own client id and client secret based on instruction on [this site.](https://developer.spotify.com/documentation/general/guides/app-settings/#register-your-app)
 **Spotify account is required.**
