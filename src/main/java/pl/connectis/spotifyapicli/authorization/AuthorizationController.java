@@ -31,7 +31,6 @@ public class AuthorizationController {
         condition.signal();
         lock.unlock();
         log.info("Authorization code: {}", authorizationCode.getCode());
-//        return savedCode.getCode();
         return "Authorization code saved. You can close this window";
     }
 }

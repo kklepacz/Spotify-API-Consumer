@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
 import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
-import pl.connectis.spotifyapicli.authorization.Token;
+import pl.connectis.spotifyapicli.authorization.TokenService;
 import pl.connectis.spotifyapicli.dto.Album;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class AlbumsAPICallTest {
     @Qualifier("client_credentials")
     private AuthorizationStrategy authorization;
     @Autowired
-    private Token token;
+    private TokenService tokenService;
     @Autowired
     private HttpHeaders httpHeaders;
 
@@ -36,10 +36,8 @@ public class AlbumsAPICallTest {
 
     @Test
     public void TestIfSpecifiedByIDAlbumGetsReturned() throws IOException {
-//        if (!token.hasToken() || !token.isTokenValid()) {
         authorization.authorize();
-//        }
-        httpHeaders.setBearerAuth(token.getAccessToken());
+        httpHeaders.setBearerAuth(tokenService.readTokenFromFile().getAccessToken());
         Album album = albumsAPICall.getOne(ids1);
         assertEquals(ids1, album.getId());
     }

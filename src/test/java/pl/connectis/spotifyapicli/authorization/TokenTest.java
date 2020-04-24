@@ -1,47 +1,43 @@
 package pl.connectis.spotifyapicli.authorization;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TokenTest {
 
-    private static Token newToken;
-    private Token expiredToken;
-    private Token savedToken;
-    private Token readToken;
-    private Token validToken;
+    private Token newToken;
+    private TokenService tokenService = new TokenService();
 
-    @BeforeAll
-    static void init() {
+    @BeforeEach
+    void init() {
         newToken = new Token();
         newToken.setAccessToken("ThisIsMockTokenValue");
-        newToken.setExpiresInSecond(3600);
+        newToken.setExpiresInSecond(Integer.MAX_VALUE);
+        newToken.setExpirationTimeInMillisecondsBasedOnGenerationTimeAndExpiresInSeconds();
         newToken.setTokenType("Bearer");
     }
 
     @Test
     public void ReadAndSaveTokenSame() {
-        newToken.saveToken();
-        readToken = new Token().readToken();
+        tokenService.saveTokenToFile(newToken);
+        Token readToken = tokenService.readTokenFromFile();
 
-        assertEquals(savedToken, readToken);
+        assertEquals(newToken, readToken);
     }
 
     @Test
     public void TokenHasExpired() {
-        expiredToken = new Token();
+        Token expiredToken = new Token();
         expiredToken.setExpirationTimeMillis(System.currentTimeMillis() - 1000L);
 
-        assertFalse(expiredToken.isTokenValid());
+        assertFalse(tokenService.isTokenValid(expiredToken));
     }
 
     @Test
     public void TokenIsValid() {
-        newToken.saveToken();
-
-        assertTrue(validToken.isTokenValid());
+        assertTrue(tokenService.isTokenValid(newToken));
     }
 
 

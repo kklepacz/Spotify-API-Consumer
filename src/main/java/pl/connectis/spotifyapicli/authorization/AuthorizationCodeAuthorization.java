@@ -29,11 +29,12 @@ public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
     private final ReentrantLock lock;
     private final Condition condition;
     private final AuthorizationConfig authorizationConfig;
+    private final TokenService tokenService;
     @Value("{$spring.main.web-application-type}")
     private String webApplicationType;
 
 
-    public AuthorizationCodeAuthorization(AuthorizationCode authorizationCode, ApplicationContext context, RestTemplate restTemplate, HttpHeaders httpHeaders, ReentrantLock lock, Condition condition, AuthorizationConfig authorizationConfig) {
+    public AuthorizationCodeAuthorization(AuthorizationCode authorizationCode, ApplicationContext context, RestTemplate restTemplate, HttpHeaders httpHeaders, ReentrantLock lock, Condition condition, AuthorizationConfig authorizationConfig, TokenService tokenService) {
         this.authorizationCode = authorizationCode;
         this.context = context;
         this.restTemplate = restTemplate;
@@ -41,6 +42,7 @@ public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
         this.lock = lock;
         this.condition = condition;
         this.authorizationConfig = authorizationConfig;
+        this.tokenService = tokenService;
     }
 
     public void authorize() throws IOException {
@@ -102,18 +104,18 @@ public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
                 httpEntity,
                 Token.class);
         log.info("ReceivedToken: {} ", newToken.toString());
-        newToken.saveToken();
-        Token tokenBeanToUpdate = context.getBean(Token.class);
-        updateTokenBean(tokenBeanToUpdate, newToken);
+        tokenService.saveTokenToFile(newToken);
+//        Token tokenBeanToUpdate = context.getBean(Token.class);
+//        updateTokenBean(tokenBeanToUpdate, newToken);
     }
 
-    private void updateTokenBean(Token tokenBean, Token newToken) {
-        tokenBean.setAccessToken(newToken.getAccessToken());
-        tokenBean.setExpiresInSecond(newToken.getExpiresInSecond());
-        tokenBean.setExpirationTimeMillis(newToken.getExpirationTimeMillis());
-        tokenBean.setRefreshToken(newToken.getRefreshToken());
-        tokenBean.setScope(newToken.getScope());
-        tokenBean.setTokenType(newToken.getTokenType());
-        log.info("BeanToken: {}", tokenBean.toString());
-    }
+//    private void updateTokenBean(Token tokenBean, Token newToken) {
+//        tokenBean.setAccessToken(newToken.getAccessToken());
+//        tokenBean.setExpiresInSecond(newToken.getExpiresInSecond());
+//        tokenBean.setExpirationTimeMillis(newToken.getExpirationTimeMillis());
+//        tokenBean.setRefreshToken(newToken.getRefreshToken());
+//        tokenBean.setScope(newToken.getScope());
+//        tokenBean.setTokenType(newToken.getTokenType());
+//        log.info("BeanToken: {}", tokenBean.toString());
+//    }
 }

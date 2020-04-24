@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import pl.connectis.spotifyapicli.APICalls.APICallerFactory;
 import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
 import pl.connectis.spotifyapicli.authorization.Token;
+import pl.connectis.spotifyapicli.authorization.TokenService;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -18,16 +19,15 @@ import java.util.Arrays;
 @Profile({"!test"})
 public class SpotifyAPICLR implements CommandLineRunner {
 
-    @Qualifier("${authorizationMethod}")
     private final AuthorizationStrategy authorization;
     private final APICallerFactory apiCallerFactory;
-    private final Token token;
+    private final TokenService tokenService;
 
 
-    public SpotifyAPICLR(AuthorizationStrategy authorization, APICallerFactory apiCallerFactory, Token token) {
+    public SpotifyAPICLR(@Qualifier("AuthorizationStrategy") AuthorizationStrategy authorization, APICallerFactory apiCallerFactory, TokenService tokenService) {
         this.authorization = authorization;
         this.apiCallerFactory = apiCallerFactory;
-        this.token = token;
+        this.tokenService = tokenService;
     }
 
     public void run(String... args) {
@@ -44,8 +44,9 @@ public class SpotifyAPICLR implements CommandLineRunner {
             return;
         }
 
+        Token token = tokenService.readTokenFromFile();
 
-        if (cmd.hasOption("a") || !token.hasToken() || !token.isTokenValid()) {
+        if (cmd.hasOption("a") || !tokenService.fileExists() || !tokenService.isTokenValid(token)) {
             authorize(authorization);
         } else {
             String ids = cmd.getOptionValue(cmd.getOptions()[0].getOpt());
