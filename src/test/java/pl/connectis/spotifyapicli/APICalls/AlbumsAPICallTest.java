@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AlbumsAPICallTest {
 
     @Autowired
-    private APICallerFactory apiCallerFactory;
+    private AlbumsAPICall albumsAPICall;
     @Autowired
     @Qualifier("client_credentials")
     private AuthorizationStrategy authorization;
@@ -40,7 +40,7 @@ public class AlbumsAPICallTest {
         authorization.authorize();
 //        }
         httpHeaders.setBearerAuth(token.getAccessToken());
-        Album album = ((AlbumsAPICall) apiCallerFactory.getCaller("album")).getOneAlbum(ids1);
+        Album album = albumsAPICall.getOne(ids1);
         assertEquals(ids1, album.getId());
     }
 

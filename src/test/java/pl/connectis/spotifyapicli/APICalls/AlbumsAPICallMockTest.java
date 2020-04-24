@@ -24,7 +24,7 @@ public class AlbumsAPICallMockTest {
     @MockBean
     private RestTemplate restTemplate;
     @Autowired
-    private APICallerFactory apiCallerFactory;
+    private AlbumsAPICall albumsAPICall;
 
     @Test
     public void givenRestTemplateMocked_WhenGetOneAlbumInvoked_ThenMockValueReturned() {
@@ -38,7 +38,7 @@ public class AlbumsAPICallMockTest {
         when(mockResponse.getBody()).thenReturn(albumMock);
 
 
-        Album album = ((AlbumsAPICall) apiCallerFactory.getCaller("album")).getOneAlbum("41MnTivkwTO3UUJ8DrqEJJ");
+        Album album = albumsAPICall.getOne("41MnTivkwTO3UUJ8DrqEJJ");
 
         Mockito.verify(mockResponse).getStatusCode();
         Mockito.verify(restTemplate).exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(Album.class), anyString());
