@@ -48,11 +48,12 @@ public class SpotifyAPICLR implements CommandLineRunner {
 
         if (cmd.hasOption("a") || !tokenService.fileExists() || !tokenService.isTokenValid(token)) {
             authorize(authorization);
-        } else {
-            String ids = cmd.getOptionValue(cmd.getOptions()[0].getOpt());
-            log.info("Parsed ids: {}", ids);
-            apiCallerFactory.getCaller(cmd.getOptions()[0].getLongOpt()).call(ids);
         }
+
+        String ids = cmd.getOptionValue(cmd.getOptions()[0].getOpt());
+        log.info("Parsed ids: {}", ids);
+        apiCallerFactory.getCaller(cmd.getOptions()[0].getLongOpt()).call(ids);
+
         System.exit(0);
     }
 

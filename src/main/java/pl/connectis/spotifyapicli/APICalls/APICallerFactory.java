@@ -1,11 +1,13 @@
 package pl.connectis.spotifyapicli.APICalls;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import pl.connectis.spotifyapicli.authorization.TokenService;
 
 import java.security.InvalidParameterException;
 
+@Lazy
 @Component
 public class APICallerFactory {
 

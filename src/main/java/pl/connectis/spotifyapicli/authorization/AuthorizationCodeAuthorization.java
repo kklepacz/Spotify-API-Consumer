@@ -2,7 +2,6 @@ package pl.connectis.spotifyapicli.authorization;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,7 +22,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
 
     private final AuthorizationCode authorizationCode;
-    private final ApplicationContext context;
     private final RestTemplate restTemplate;
     private final HttpHeaders httpHeaders;
     private final ReentrantLock lock;
@@ -34,9 +32,8 @@ public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
     private String webApplicationType;
 
 
-    public AuthorizationCodeAuthorization(AuthorizationCode authorizationCode, ApplicationContext context, RestTemplate restTemplate, HttpHeaders httpHeaders, ReentrantLock lock, Condition condition, AuthorizationConfig authorizationConfig, TokenService tokenService) {
+    public AuthorizationCodeAuthorization(AuthorizationCode authorizationCode, RestTemplate restTemplate, HttpHeaders httpHeaders, ReentrantLock lock, Condition condition, AuthorizationConfig authorizationConfig, TokenService tokenService) {
         this.authorizationCode = authorizationCode;
-        this.context = context;
         this.restTemplate = restTemplate;
         this.httpHeaders = httpHeaders;
         this.lock = lock;
@@ -103,19 +100,11 @@ public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
         Token newToken = restTemplate.postForObject(authorizationConfig.getAccessTokenUri(),
                 httpEntity,
                 Token.class);
+        if (newToken == null)
+            throw new IllegalStateException("Could not receive token information from api. Try again. Check connection status.");
+        newToken.setExpirationTimeInMillisecondsBasedOnGenerationTimeAndExpiresInSeconds();
         log.info("ReceivedToken: {} ", newToken.toString());
         tokenService.saveTokenToFile(newToken);
-//        Token tokenBeanToUpdate = context.getBean(Token.class);
-//        updateTokenBean(tokenBeanToUpdate, newToken);
     }
 
-//    private void updateTokenBean(Token tokenBean, Token newToken) {
-//        tokenBean.setAccessToken(newToken.getAccessToken());
-//        tokenBean.setExpiresInSecond(newToken.getExpiresInSecond());
-//        tokenBean.setExpirationTimeMillis(newToken.getExpirationTimeMillis());
-//        tokenBean.setRefreshToken(newToken.getRefreshToken());
-//        tokenBean.setScope(newToken.getScope());
-//        tokenBean.setTokenType(newToken.getTokenType());
-//        log.info("BeanToken: {}", tokenBean.toString());
-//    }
 }
