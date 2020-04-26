@@ -25,7 +25,6 @@ public abstract class BaseAPICaller<T> {
 
     public T getOne(String id) {
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(httpHeaders);
-
         ResponseEntity<T> response = restTemplate.exchange(
                 uriOne,
                 HttpMethod.GET,

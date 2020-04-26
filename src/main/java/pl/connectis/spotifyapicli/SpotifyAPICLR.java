@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import pl.connectis.spotifyapicli.APICalls.APICallerFactory;
 import pl.connectis.spotifyapicli.APICalls.AlbumsAPICall;
+import pl.connectis.spotifyapicli.APICalls.ArtistAPICall;
 import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
 import pl.connectis.spotifyapicli.authorization.Token;
 import pl.connectis.spotifyapicli.authorization.TokenService;
@@ -15,6 +17,7 @@ import pl.connectis.spotifyapicli.authorization.TokenService;
 import java.io.IOException;
 import java.util.Arrays;
 
+@Lazy
 @Component
 @Slf4j
 @Profile({"!test"})
@@ -51,19 +54,36 @@ public class SpotifyAPICLR implements CommandLineRunner {
             authorize(authorization);
         }
 
-        log.info("Parsed args: {}", cmd.getArgs());
+        log.info("Parsed args: {}", Arrays.toString(cmd.getArgs()));
+
+        Option option = cmd.getOptions()[0];
 
         if (cmd.getArgs().length > 0) {
             log.info("found args");
             if (cmd.hasOption("ab") && cmd.getArgs()[0].equals("tracks")) {
-                String ids = cmd.getOptionValue(cmd.getOptions()[0].getOpt());
-                log.info("Parsed ids: {}", ids);
-                log.info(((AlbumsAPICall) apiCallerFactory.getCaller(cmd.getOptions()[0].getLongOpt())).getManyTracksFromOneAlbum(ids).toString());
+                String id = cmd.getOptionValue(option.getOpt());
+                log.info("Parsed id: {}", id);
+                log.info(((AlbumsAPICall) apiCallerFactory.getCaller(option.getLongOpt())).getManyTracksFromOneAlbum(id).toString());
+            } else if (cmd.hasOption("at")) {
+                String id = cmd.getOptionValue(option.getOpt());
+                log.info("Parsed id: {}", id);
+                switch (cmd.getArgs()[0]) {
+                    case "albums":
+                        log.info(((ArtistAPICall) apiCallerFactory.getCaller(option.getLongOpt())).getManyAlbumsFromOneArtist(id).toString());
+                        break;
+                    case "top-tracks":
+                        String countryCode = cmd.getArgs()[1];
+                        log.info(Arrays.toString(((ArtistAPICall) apiCallerFactory.getCaller(option.getLongOpt())).getManyTopTracksFromOneArtist(id, countryCode).get("tracks")));
+                        break;
+                    case "related-artists":
+                        log.info(Arrays.toString(((ArtistAPICall) apiCallerFactory.getCaller(option.getLongOpt())).getManyRelatedArtistsFromOneArtist(id).get("artists")));
+                        break;
+                }
             }
         } else {
-            String ids = cmd.getOptionValue(cmd.getOptions()[0].getOpt());
+            String ids = cmd.getOptionValue(option.getOpt());
             log.info("Parsed ids: {}", ids);
-            apiCallerFactory.getCaller(cmd.getOptions()[0].getLongOpt()).call(ids);
+            apiCallerFactory.getCaller(option.getLongOpt()).call(ids);
         }
         System.exit(0); //for servlet application type
     }
@@ -75,8 +95,8 @@ public class SpotifyAPICLR implements CommandLineRunner {
                 "--track 11dFghVXANMlKmJXsNCb,20I6sIOMTCkB6w7ryavxtO");
         options.addOption("ab", "album", true, "Get album/s info. Optional args: tracks Examples: -ab 41MnTivkwTO3UUJ8DrqEJJ ," +
                 "--album 41MnTivkwTO3UUJ8DrqEJJ,6JWc4iAiJ9FjyK0B59ABb4,6UXCm6bOO4gFlDQZV5yL37");
-        options.addOption("at", "artist", true, "Get artist/s info. Examples: -at 0OdUWJ0sBjDrqHygGUX ," +
-                "--album 0oSGxfWSnnOXhD2fKuz2Gy,3dBVyJ7JuOMt4GE9607Qin");
+        options.addOption("at", "artist", true, "Get artist/s info. Optional arg:  Examples: -at 0OdUWJ0sBjDrqHygGUXeCF, " +
+                "--artist 0oSGxfWSnnOXhD2fKuz2Gy,3dBVyJ7JuOMt4GE9607Qin");
         return options;
     }
 

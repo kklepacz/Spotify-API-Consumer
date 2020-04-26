@@ -1,11 +1,13 @@
 package pl.connectis.spotifyapicli;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
@@ -13,6 +15,8 @@ import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Slf4j
+@Lazy
 @Configuration
 public class AppConfig {
 
@@ -32,8 +36,10 @@ public class AppConfig {
         return builder.rootUri(baseUrl).build();
     }
 
+    @Lazy
     @Bean
     public HttpHeaders httpHeaders() {
+        log.info("HttpHeaders init.");
         return new HttpHeaders();
     }
 
