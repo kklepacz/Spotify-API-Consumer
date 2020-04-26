@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import pl.connectis.spotifyapicli.APICalls.APICallerFactory;
+import pl.connectis.spotifyapicli.APICalls.AlbumsAPICall;
 import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
 import pl.connectis.spotifyapicli.authorization.Token;
 import pl.connectis.spotifyapicli.authorization.TokenService;
@@ -50,21 +51,32 @@ public class SpotifyAPICLR implements CommandLineRunner {
             authorize(authorization);
         }
 
-        String ids = cmd.getOptionValue(cmd.getOptions()[0].getOpt());
-        log.info("Parsed ids: {}", ids);
-        apiCallerFactory.getCaller(cmd.getOptions()[0].getLongOpt()).call(ids);
+        log.info("Parsed args: {}", cmd.getArgs());
 
-        System.exit(0);
+        if (cmd.getArgs().length > 0) {
+            log.info("found args");
+            if (cmd.hasOption("ab") && cmd.getArgs()[0].equals("tracks")) {
+                String ids = cmd.getOptionValue(cmd.getOptions()[0].getOpt());
+                log.info("Parsed ids: {}", ids);
+                log.info(((AlbumsAPICall) apiCallerFactory.getCaller(cmd.getOptions()[0].getLongOpt())).getManyTracksFromOneAlbum(ids).toString());
+            }
+        } else {
+            String ids = cmd.getOptionValue(cmd.getOptions()[0].getOpt());
+            log.info("Parsed ids: {}", ids);
+            apiCallerFactory.getCaller(cmd.getOptions()[0].getLongOpt()).call(ids);
+        }
+        System.exit(0); //for servlet application type
     }
 
     private Options buildOptions() {
         final Options options = new Options();
-        Option option1 = Option.builder("a").longOpt("authorize").hasArg(true).optionalArg(true).valueSeparator(' ').build();
-        options.addOption(option1);
-        options.addOption("tr", "track", true, "Get track/tracks info. Examples: -tr 11dFghVXANMlKmJXsNCb ," +
+        options.addOption("a", "authorize", false, "Authorize with Spotify API");
+        options.addOption("tr", "track", true, "Get track/s info. Examples: -tr 11dFghVXANMlKmJXsNCb ," +
                 "--track 11dFghVXANMlKmJXsNCb,20I6sIOMTCkB6w7ryavxtO");
-        options.addOption("ab", "album", true, "Get album/albums info. Examples: -ab 41MnTivkwTO3UUJ8DrqEJJ ," +
+        options.addOption("ab", "album", true, "Get album/s info. Optional args: tracks Examples: -ab 41MnTivkwTO3UUJ8DrqEJJ ," +
                 "--album 41MnTivkwTO3UUJ8DrqEJJ,6JWc4iAiJ9FjyK0B59ABb4,6UXCm6bOO4gFlDQZV5yL37");
+        options.addOption("at", "artist", true, "Get artist/s info. Examples: -at 0OdUWJ0sBjDrqHygGUX ," +
+                "--album 0oSGxfWSnnOXhD2fKuz2Gy,3dBVyJ7JuOMt4GE9607Qin");
         return options;
     }
 

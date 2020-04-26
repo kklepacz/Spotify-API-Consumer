@@ -15,7 +15,7 @@ import java.util.Map;
 public class TracksAPICall extends BaseAPICaller<Track> implements APICaller {
 
     public TracksAPICall(RestTemplate restTemplate, HttpHeaders httpHeaders) {
-        super(restTemplate, httpHeaders, Track.class, "/tracks/{ids}", "/tracks?ids={ids}");
+        super(restTemplate, httpHeaders, Track.class, "/tracks/{id}", "/tracks?ids={ids}");
     }
 
     public void call(String ids) {

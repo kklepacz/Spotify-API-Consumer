@@ -15,12 +15,14 @@ public class APICallerFactory {
     private final TokenService tokenService;
     private final APICaller album;
     private final APICaller track;
+    private final APICaller artist;
 
-    public APICallerFactory(HttpHeaders httpHeaders, TokenService tokenService, AlbumsAPICall album, TracksAPICall track) {
+    public APICallerFactory(HttpHeaders httpHeaders, TokenService tokenService, AlbumsAPICall album, TracksAPICall track, APICaller artist) {
         this.httpHeaders = httpHeaders;
         this.tokenService = tokenService;
         this.album = album;
         this.track = track;
+        this.artist = artist;
     }
 
 
@@ -31,6 +33,8 @@ public class APICallerFactory {
                 return album;
             case "track":
                 return track;
+            case "artist":
+                return artist;
             default:
                 throw new InvalidParameterException("Wrong argument provided.");
         }

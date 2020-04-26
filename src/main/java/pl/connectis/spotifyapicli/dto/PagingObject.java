@@ -3,11 +3,13 @@ package pl.connectis.spotifyapicli.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PagingObject<T> {
     private String href;
-    private T items;
+    private List<T> items;
     private Integer limit;
     private String next;
     private Integer offset;
