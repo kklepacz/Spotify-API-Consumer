@@ -17,20 +17,17 @@ import java.util.Base64;
 public class ClientCredentialsAuthorization implements AuthorizationStrategy {
 
     private final RestTemplate restTemplate;
-    private final HttpHeaders httpHeaders;
     private final AuthorizationConfig authorizationConfig;
-    private final TokenService tokenService;
 
-
-    public ClientCredentialsAuthorization(RestTemplate restTemplate, HttpHeaders httpHeaders, AuthorizationConfig authorizationConfig, TokenService tokenService) {
+    public ClientCredentialsAuthorization(RestTemplate restTemplate, AuthorizationConfig authorizationConfig) {
         this.restTemplate = restTemplate;
-        this.httpHeaders = httpHeaders;
         this.authorizationConfig = authorizationConfig;
-        this.tokenService = tokenService;
     }
 
-    public void authorize() {
 
+    public Token authorize() {
+
+        final HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<MultiValueMap<String, String>> httpEntity;
 
         String toEncodeClientIdAndSecret = authorizationConfig.getClientID() + ":" + authorizationConfig.getClientSecret();
@@ -54,6 +51,6 @@ public class ClientCredentialsAuthorization implements AuthorizationStrategy {
             throw new IllegalStateException("Could not receive token information from api. Try again. Check connection status.");
         newToken.setExpirationTimeInMillisecondsBasedOnGenerationTimeAndExpiresInSeconds();
         log.info("ReceivedToken: {} ", newToken.toString());
-        tokenService.saveTokenToFile(newToken);
+        return newToken;
     }
 }

@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TokenTest {
 
     private Token newToken;
-    private TokenService tokenService = new TokenService();
+    private TokenService tokenService;
 
     @BeforeEach
     void init() {
@@ -22,7 +22,7 @@ public class TokenTest {
     @Test
     public void ReadAndSaveTokenSame() {
         tokenService.saveTokenToFile(newToken);
-        Token readToken = tokenService.readTokenFromFile();
+        Token readToken = tokenService.getToken();
 
         assertEquals(newToken, readToken);
     }

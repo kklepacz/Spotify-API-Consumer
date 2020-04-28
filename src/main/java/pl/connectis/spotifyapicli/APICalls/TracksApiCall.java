@@ -3,7 +3,6 @@ package pl.connectis.spotifyapicli.APICalls;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import pl.connectis.spotifyapicli.dto.Track;
 
@@ -11,10 +10,9 @@ import java.util.Arrays;
 import java.util.Map;
 
 @Slf4j
-@Component
-public class TracksAPICall extends BaseAPICaller<Track> implements APICaller {
+public class TracksApiCall extends BaseApiCaller<Track> implements ApiCaller {
 
-    public TracksAPICall(RestTemplate restTemplate, HttpHeaders httpHeaders) {
+    public TracksApiCall(RestTemplate restTemplate, HttpHeaders httpHeaders) {
         super(restTemplate, httpHeaders, Track.class, "/tracks/{id}", "/tracks?ids={ids}");
     }
 

@@ -7,14 +7,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import pl.connectis.spotifyapicli.APICalls.APICallerFactory;
-import pl.connectis.spotifyapicli.APICalls.AlbumsAPICall;
-import pl.connectis.spotifyapicli.APICalls.ArtistAPICall;
+import pl.connectis.spotifyapicli.APICalls.AlbumsApiCall;
+import pl.connectis.spotifyapicli.APICalls.ApiCallerFactory;
+import pl.connectis.spotifyapicli.APICalls.ArtistsApiCall;
 import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
-import pl.connectis.spotifyapicli.authorization.Token;
 import pl.connectis.spotifyapicli.authorization.TokenService;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 @Lazy
@@ -24,14 +22,12 @@ import java.util.Arrays;
 public class SpotifyAPICLR implements CommandLineRunner {
 
     private final AuthorizationStrategy authorization;
-    private final APICallerFactory apiCallerFactory;
-    private final TokenService tokenService;
+    private final ApiCallerFactory apiCallerFactory;
 
 
-    public SpotifyAPICLR(@Qualifier("AuthorizationStrategy") AuthorizationStrategy authorization, APICallerFactory apiCallerFactory, TokenService tokenService) {
+    public SpotifyAPICLR(@Qualifier("AuthorizationStrategy") AuthorizationStrategy authorization, ApiCallerFactory apiCallerFactory, TokenService tokenService) {
         this.authorization = authorization;
         this.apiCallerFactory = apiCallerFactory;
-        this.tokenService = tokenService;
     }
 
     public void run(String... args) {
@@ -48,35 +44,32 @@ public class SpotifyAPICLR implements CommandLineRunner {
             return;
         }
 
-        Token token = tokenService.readTokenFromFile();
-
-        if (cmd.hasOption("a") || !tokenService.fileExists() || !tokenService.isTokenValid(token)) {
-            authorize(authorization);
-        }
 
         log.info("Parsed args: {}", Arrays.toString(cmd.getArgs()));
 
         Option option = cmd.getOptions()[0];
-
-        if (cmd.getArgs().length > 0) {
+        if (cmd.hasOption("a")) {
+            authorization.authorize();
+            log.info("Authorization done. Token generated.");
+        } else if (cmd.getArgs().length > 0) {
             log.info("found args");
             if (cmd.hasOption("ab") && cmd.getArgs()[0].equals("tracks")) {
                 String id = cmd.getOptionValue(option.getOpt());
                 log.info("Parsed id: {}", id);
-                log.info(((AlbumsAPICall) apiCallerFactory.getCaller(option.getLongOpt())).getManyTracksFromOneAlbum(id).toString());
+                log.info(((AlbumsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getManyTracksFromOneAlbum(id).toString());
             } else if (cmd.hasOption("at")) {
                 String id = cmd.getOptionValue(option.getOpt());
                 log.info("Parsed id: {}", id);
                 switch (cmd.getArgs()[0]) {
                     case "albums":
-                        log.info(((ArtistAPICall) apiCallerFactory.getCaller(option.getLongOpt())).getManyAlbumsFromOneArtist(id).toString());
+                        log.info(((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getManyAlbumsFromOneArtist(id).toString());
                         break;
                     case "top-tracks":
                         String countryCode = cmd.getArgs()[1];
-                        log.info(Arrays.toString(((ArtistAPICall) apiCallerFactory.getCaller(option.getLongOpt())).getManyTopTracksFromOneArtist(id, countryCode).get("tracks")));
+                        log.info(Arrays.toString(((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getManyTopTracksFromOneArtist(id, countryCode).get("tracks")));
                         break;
                     case "related-artists":
-                        log.info(Arrays.toString(((ArtistAPICall) apiCallerFactory.getCaller(option.getLongOpt())).getManyRelatedArtistsFromOneArtist(id).get("artists")));
+                        log.info(Arrays.toString(((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getManyRelatedArtistsFromOneArtist(id).get("artists")));
                         break;
                 }
             }
@@ -100,12 +93,5 @@ public class SpotifyAPICLR implements CommandLineRunner {
         return options;
     }
 
-    private void authorize(AuthorizationStrategy authorization) {
-        try {
-            authorization.authorize();
-        } catch (IOException ex) {
-            log.error(ex.getMessage());
-            throw new IllegalStateException("Could not authorize");
-        }
-    }
+
 }

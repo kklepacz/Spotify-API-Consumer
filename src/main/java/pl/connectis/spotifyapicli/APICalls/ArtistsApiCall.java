@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import pl.connectis.spotifyapicli.dto.Album;
@@ -17,17 +16,16 @@ import java.util.Map;
 
 @Slf4j
 @Lazy
-@Component
-public class ArtistAPICall extends BaseAPICaller<Artist> implements APICaller {
+public class ArtistsApiCall extends BaseApiCaller<Artist> implements ApiCaller {
 
     private final RestTemplate restTemplate;
-    private final MultiValueMap<String, String> httpHeaders;
+    private final HttpHeaders httpHeaders;
 
 
-    public ArtistAPICall(RestTemplate restTemplate, HttpHeaders httpHeaders, MultiValueMap<String, String> httpHeaders1) {
+    public ArtistsApiCall(RestTemplate restTemplate, HttpHeaders httpHeaders) {
         super(restTemplate, httpHeaders, Artist.class, "/artists/{id}", "/artists?ids={ids}");
         this.restTemplate = restTemplate;
-        this.httpHeaders = httpHeaders1;
+        this.httpHeaders = httpHeaders;
         log.info("ArtistApiCall init.");
     }
 

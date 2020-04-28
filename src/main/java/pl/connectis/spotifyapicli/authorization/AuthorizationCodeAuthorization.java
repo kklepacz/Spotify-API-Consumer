@@ -23,26 +23,22 @@ public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
 
     private final AuthorizationCode authorizationCode;
     private final RestTemplate restTemplate;
-    private final HttpHeaders httpHeaders;
     private final ReentrantLock lock;
     private final Condition condition;
     private final AuthorizationConfig authorizationConfig;
-    private final TokenService tokenService;
     @Value("{$spring.main.web-application-type}")
     private String webApplicationType;
 
 
-    public AuthorizationCodeAuthorization(AuthorizationCode authorizationCode, RestTemplate restTemplate, HttpHeaders httpHeaders, ReentrantLock lock, Condition condition, AuthorizationConfig authorizationConfig, TokenService tokenService) {
+    public AuthorizationCodeAuthorization(AuthorizationCode authorizationCode, RestTemplate restTemplate, ReentrantLock lock, Condition condition, AuthorizationConfig authorizationConfig) {
         this.authorizationCode = authorizationCode;
         this.restTemplate = restTemplate;
-        this.httpHeaders = httpHeaders;
         this.lock = lock;
         this.condition = condition;
         this.authorizationConfig = authorizationConfig;
-        this.tokenService = tokenService;
     }
 
-    public void authorize() throws IOException {
+    public Token authorize() {
 
         if (!webApplicationType.equals("servlet")) {
             throw new RuntimeException("Wrong spring web application type configuration for authorization_code method of authorization. Please change the method or set spring.main.web-application-type to servlet.");
@@ -74,15 +70,16 @@ public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
         } catch (InterruptedException ex) {
             log.info("Interrupted await for authorization code to be generated.");
             ex.printStackTrace();
-            return;
         } finally {
             lock.unlock();
         }
 
-        if (authorizationCode.getCode() == null) throw new IOException("Didn't get authorization code");
+        if (authorizationCode.getCode() == null) throw new RuntimeException("Didn't get authorization code");
 
         String toEncodeClientIdAndSecret = authorizationConfig.getClientID() + ":" + authorizationConfig.getClientSecret();
         String encodedClientIdAndSecret = Base64.getEncoder().encodeToString(toEncodeClientIdAndSecret.getBytes());
+
+        final HttpHeaders httpHeaders = new HttpHeaders();
 
         httpHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         httpHeaders.set("Content-Type", "application/x-www-form-urlencoded");
@@ -104,7 +101,7 @@ public class AuthorizationCodeAuthorization implements AuthorizationStrategy {
             throw new IllegalStateException("Could not receive token information from api. Try again. Check connection status.");
         newToken.setExpirationTimeInMillisecondsBasedOnGenerationTimeAndExpiresInSeconds();
         log.info("ReceivedToken: {} ", newToken.toString());
-        tokenService.saveTokenToFile(newToken);
+        return newToken;
     }
 
 }

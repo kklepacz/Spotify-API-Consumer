@@ -24,7 +24,7 @@ public class AlbumsAPICallMockTest {
     @MockBean
     private RestTemplate restTemplate;
     @Autowired
-    private AlbumsAPICall albumsAPICall;
+    private AlbumsApiCall albumsAPICall;
 
     @Test
     public void givenRestTemplateMocked_WhenGetOneAlbumInvoked_ThenMockValueReturned() {

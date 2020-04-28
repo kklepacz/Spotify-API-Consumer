@@ -7,11 +7,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.client.RestTemplate;
 import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
 import pl.connectis.spotifyapicli.authorization.TokenService;
 import pl.connectis.spotifyapicli.dto.Album;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,14 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AlbumsAPICallTest {
 
     @Autowired
-    private AlbumsAPICall albumsAPICall;
-    @Autowired
     @Qualifier("client_credentials")
     private AuthorizationStrategy authorization;
     @Autowired
     private TokenService tokenService;
     @Autowired
-    private HttpHeaders httpHeaders;
+    private RestTemplate restTemplate;
 
 
     private String ids1 = "41MnTivkwTO3UUJ8DrqEJJ";
@@ -35,10 +32,12 @@ public class AlbumsAPICallTest {
 
 
     @Test
-    public void TestIfSpecifiedByIDAlbumGetsReturned() throws IOException {
+    public void TestIfSpecifiedByIDAlbumGetsReturned() {
+        final HttpHeaders httpHeaders = new HttpHeaders();
         authorization.authorize();
-        httpHeaders.setBearerAuth(tokenService.readTokenFromFile().getAccessToken());
-        Album album = albumsAPICall.getOne(ids1);
+        httpHeaders.setBearerAuth(tokenService.getToken().getAccessToken());
+        final AlbumsApiCall albumsApiCall = new AlbumsApiCall(restTemplate, httpHeaders);
+        Album album = albumsApiCall.getOne(ids1);
         assertEquals(ids1, album.getId());
     }
 

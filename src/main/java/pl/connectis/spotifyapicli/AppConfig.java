@@ -8,8 +8,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
+import pl.connectis.spotifyapicli.authorization.AuthorizationConfig;
 import pl.connectis.spotifyapicli.authorization.AuthorizationStrategy;
 
 import java.util.concurrent.locks.Condition;
@@ -21,26 +21,21 @@ import java.util.concurrent.locks.ReentrantLock;
 public class AppConfig {
 
     private final ApplicationContext context;
+    private final AuthorizationConfig config;
 
-    public AppConfig(ApplicationContext context) {
+    public AppConfig(ApplicationContext context, AuthorizationConfig config) {
         this.context = context;
+        this.config = config;
     }
 
     @Bean
-    public AuthorizationStrategy AuthorizationStrategy(@Value("${auth.authorizationMethod}") String qualifier) {
-        return (AuthorizationStrategy) context.getBean(qualifier);
+    public AuthorizationStrategy AuthorizationStrategy() {
+        return context.getBean(config.getAuthorizationMethod(), AuthorizationStrategy.class);
     }
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder, @Value("${baseUrl}") String baseUrl) {
         return builder.rootUri(baseUrl).build();
-    }
-
-    @Lazy
-    @Bean
-    public HttpHeaders httpHeaders() {
-        log.info("HttpHeaders init.");
-        return new HttpHeaders();
     }
 
     @Bean

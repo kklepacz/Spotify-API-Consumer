@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-public abstract class BaseAPICaller<T> {
+public abstract class BaseApiCaller<T> implements ApiCaller {
 
     private final RestTemplate restTemplate;
     private final HttpHeaders httpHeaders;
@@ -15,7 +15,7 @@ public abstract class BaseAPICaller<T> {
     private final String uriOne;
     private final String uriMany;
 
-    protected BaseAPICaller(RestTemplate restTemplate, HttpHeaders httpHeaders, Class<T> clazz, String uriOne, String uriMany) {
+    protected BaseApiCaller(RestTemplate restTemplate, HttpHeaders httpHeaders, Class<T> clazz, String uriOne, String uriMany) {
         this.restTemplate = restTemplate;
         this.httpHeaders = httpHeaders;
         this.clazz = clazz;

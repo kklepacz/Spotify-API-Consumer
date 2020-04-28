@@ -3,7 +3,6 @@ package pl.connectis.spotifyapicli.APICalls;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import pl.connectis.spotifyapicli.dto.Album;
@@ -14,13 +13,12 @@ import java.util.Arrays;
 import java.util.Map;
 
 @Slf4j
-@Component
-public class AlbumsAPICall extends BaseAPICaller<Album> implements APICaller {
+public class AlbumsApiCall extends BaseApiCaller<Album> implements ApiCaller {
 
     private final RestTemplate restTemplate;
     private final HttpHeaders httpHeaders;
 
-    public AlbumsAPICall(RestTemplate restTemplate, HttpHeaders httpHeaders) {
+    public AlbumsApiCall(RestTemplate restTemplate, HttpHeaders httpHeaders) {
         super(restTemplate, httpHeaders, Album.class, "/albums/{id}", "/albums?ids={ids}");
         this.restTemplate = restTemplate;
         this.httpHeaders = httpHeaders;

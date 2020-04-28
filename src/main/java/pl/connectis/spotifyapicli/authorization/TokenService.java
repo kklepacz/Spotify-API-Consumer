@@ -1,6 +1,7 @@
 package pl.connectis.spotifyapicli.authorization;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -14,6 +15,21 @@ public class TokenService {
 
     private final String fileName = "token";
     private final Path path = Paths.get(fileName);
+    private static final Token EMPTY_TOKEN = new Token();
+    private final AuthorizationStrategy authorizationStrategy;
+
+    public TokenService(@Qualifier("AuthorizationStrategy") AuthorizationStrategy authorizationStrategy) {
+        this.authorizationStrategy = authorizationStrategy;
+    }
+
+    public Token getToken() {
+        Token token = readTokenFromFile();
+        if (!isTokenValid(token)) {
+            token = authorizationStrategy.authorize();
+        }
+
+        return token;
+    }
 
     public void saveTokenToFile(Token token) {
 
@@ -29,7 +45,8 @@ public class TokenService {
     }
 
     //TODO don't like it I have to every time load Token from file if i want to access it, singleton or bean it anyway? but from bean i have to update values, maybe some lazy load bean?
-    public Token readTokenFromFile() {
+    private Token readTokenFromFile() {
+
         Token tokenToRead;
         InputStream fileIn;
         ObjectInputStream in;
@@ -41,11 +58,11 @@ public class TokenService {
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
             log.info("Created empty Token object.");
-            return new Token();
+            return EMPTY_TOKEN;
         } catch (IOException ex) {
             log.warn("Reading file operation error.", ex);
             log.info("Created empty Token object.");
-            return new Token();
+            return EMPTY_TOKEN;
         }
 
         try {

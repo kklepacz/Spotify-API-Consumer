@@ -1,5 +1,5 @@
 package pl.connectis.spotifyapicli.APICalls;
 
-public interface APICaller {
+public interface ApiCaller {
     void call(String ids);
 }
