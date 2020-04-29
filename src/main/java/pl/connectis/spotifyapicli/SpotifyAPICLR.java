@@ -56,27 +56,27 @@ public class SpotifyAPICLR implements CommandLineRunner {
             if (cmd.hasOption("ab") && cmd.getArgs()[0].equals("tracks")) {
                 String id = cmd.getOptionValue(option.getOpt());
                 log.info("Parsed id: {}", id);
-                log.info(((AlbumsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getManyTracksFromOneAlbum(id).toString());
+                log.info(((AlbumsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getAlbumTracks(id).toString());
             } else if (cmd.hasOption("at")) {
                 String id = cmd.getOptionValue(option.getOpt());
                 log.info("Parsed id: {}", id);
                 switch (cmd.getArgs()[0]) {
                     case "albums":
-                        log.info(((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getManyAlbumsFromOneArtist(id).toString());
+                        log.info(((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getArtistAlbums(id).toString());
                         break;
                     case "top-tracks":
                         String countryCode = cmd.getArgs()[1];
-                        log.info(Arrays.toString(((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getManyTopTracksFromOneArtist(id, countryCode).get("tracks")));
+                        log.info("{}", ((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getArtistTracks(id, countryCode));
                         break;
                     case "related-artists":
-                        log.info(Arrays.toString(((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getManyRelatedArtistsFromOneArtist(id).get("artists")));
+                        log.info("{}", ((ArtistsApiCall) apiCallerFactory.getCaller(option.getLongOpt())).getArtistRelatedArtists(id));
                         break;
                 }
             }
         } else {
             String ids = cmd.getOptionValue(option.getOpt());
             log.info("Parsed ids: {}", ids);
-            apiCallerFactory.getCaller(option.getLongOpt()).call(ids);
+            log.info("{}", apiCallerFactory.getCaller(option.getLongOpt()).getList(ids));
         }
         System.exit(0); //for servlet application type
     }

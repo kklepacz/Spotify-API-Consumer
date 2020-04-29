@@ -1,5 +1,7 @@
 package pl.connectis.spotifyapicli.APICalls;
 
-public interface ApiCaller {
-    void call(String ids);
+import java.util.List;
+
+public interface ApiCaller<T> {
+    List<T> getList(String ids);
 }
